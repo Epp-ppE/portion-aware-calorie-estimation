@@ -55,8 +55,10 @@ def build_samples(frames_root, dish_ids, metadata):
     dish_ids: which dishes to include (e.g. from load_dish_ids).
     metadata: dish_id -> labels dict (from parse_dish_metadata).
 
-    Returns a flat list of (image_path, labels) tuples, one per frame, so a
-    dish with 15 extracted frames contributes 15 entries, not 1.
+    Returns a flat list of (image_path, labels, dish_id) tuples, one per
+    frame, so a dish with 15 extracted frames contributes 15 entries, not 1.
+    dish_id is carried along so predictions can later be grouped back by
+    dish for dish-level evaluation.
     """
     samples = []
     for dish_id in dish_ids:
@@ -65,7 +67,7 @@ def build_samples(frames_root, dish_ids, metadata):
             continue
         labels = metadata[dish_id]
         for image_path in sorted(frames_dir.glob("*.jpeg")):
-            samples.append((image_path, labels))
+            samples.append((image_path, labels, dish_id))
     return samples
 
 
@@ -95,7 +97,7 @@ def build_transforms(train):
 
 
 class FrameDataset(Dataset):
-    """PyTorch Dataset over (image_path, labels) samples from build_samples."""
+    """PyTorch Dataset over (image_path, labels, dish_id) samples from build_samples."""
 
     def __init__(self, samples, transform):
         self.samples = samples
@@ -105,8 +107,8 @@ class FrameDataset(Dataset):
         return len(self.samples)
 
     def __getitem__(self, idx):
-        image_path, labels = self.samples[idx]
+        image_path, labels, dish_id = self.samples[idx]
         image = Image.open(image_path).convert("RGB")
         image = self.transform(image)
         target = torch.tensor([labels[name] for name in TARGET_NAMES], dtype=torch.float32)
-        return image, target
+        return image, target, dish_id
