@@ -32,8 +32,11 @@ class TargetNormalizer:
     """
 
     def __init__(self, means, stds):
-        self.means = torch.tensor(means, dtype=torch.float32)
-        self.stds = torch.tensor(stds, dtype=torch.float32)
+        # means/stds may already be tensors (e.g. loaded from a checkpoint)
+        # or plain lists (e.g. from from_targets below) — handle both without
+        # PyTorch's "copy construct from a tensor" warning either way.
+        self.means = means.clone().detach().float() if torch.is_tensor(means) else torch.tensor(means, dtype=torch.float32)
+        self.stds = stds.clone().detach().float() if torch.is_tensor(stds) else torch.tensor(stds, dtype=torch.float32)
 
     @classmethod
     def from_targets(cls, targets):
