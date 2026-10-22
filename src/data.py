@@ -81,13 +81,13 @@ def build_transforms(train):
     """
     steps = [
         transforms.Resize(256),
-        transforms.CenterCrop(224),
+        transforms.CenterCrop(224), # might cut off if food is at the edge of the plate, but that's a rare case and better than distorting the size
     ]
     if train:
         steps += [
             transforms.RandomHorizontalFlip(),
             transforms.RandomRotation(10),
-            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2), #no zoom cause it would distort the portion
         ]
     steps += [
         transforms.ToTensor(), #converts raw pixels (0-255 integers) into 0.0-1.0 floats. That's the 0-1 range.

@@ -37,11 +37,11 @@ def embed_frames(embedder, loader, device):
     all_embeddings = []
     all_targets = []
     all_dish_ids = []
-    with torch.no_grad():
+    with torch.no_grad(): # no need to compute gradients for frozen embedder
         for images, targets, dish_ids in loader:
             images = images.to(device)
             embeddings = embedder(images)
-            embeddings = F.normalize(embeddings, dim=1)
+            embeddings = F.normalize(embeddings, dim=1) # dim = 1 means  1280 numbers are scaled so that the vector has length 1
             all_embeddings.append(embeddings.cpu())
             all_targets.append(targets)
             all_dish_ids.extend(dish_ids)
@@ -54,7 +54,7 @@ def nearest_neighbor_predict(train_embeddings, train_targets, test_embeddings):
     so a plain dot product equals cosine similarity.
     """
     similarity = test_embeddings @ train_embeddings.T
-    nearest_idx = similarity.argmax(dim=1)
+    nearest_idx = similarity.argmax(dim=1) 
     return train_targets[nearest_idx]
 
 

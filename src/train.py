@@ -29,16 +29,16 @@ def run_epoch(model, loader, normalizer, optimizer, device):
         targets = targets.to(device)
         targets_norm = normalizer.normalize(targets)
 
-        with torch.set_grad_enabled(optimizer is not None):
+        with torch.set_grad_enabled(optimizer is not None): # no grad in eval mode
             preds = model(images)
-            loss = torch.nn.functional.l1_loss(preds, targets_norm)
+            loss = torch.nn.functional.l1_loss(preds, targets_norm) #L1 loss = mean absolute error (MAE)
 
         if optimizer is not None:
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            optimizer.zero_grad() #clear the gradients from the previous step
+            loss.backward() #compute the gradients for the current step
+            optimizer.step() #update weights based on the gradients and learning rate
 
-        total_loss += loss.item() * images.size(0)
+        total_loss += loss.item() * images.size(0) #accumulate the loss for this batch, scaled by the number of samples in the batch
     return total_loss / len(loader.dataset)
 
 
