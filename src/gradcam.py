@@ -8,6 +8,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from PIL import Image
+from torchvision import transforms
 
 
 class GradCAM:
@@ -61,12 +62,16 @@ def overlay_heatmap(image, cam, alpha=0.5):
     """image: PIL Image (any size). cam: (H, W) tensor, values 0-1.
 
     Returns a PIL Image: the original image with a red-hot heatmap overlay,
-    resized to match the heatmap's resolution.
+    cropped to the same region the model saw so the two line up.
     """
     cam_np = cam.numpy()
     heatmap = np.zeros((*cam_np.shape, 3), dtype=np.uint8)
     heatmap[..., 0] = (cam_np * 255).astype(np.uint8)  # red channel = how responsible this pixel was
     heatmap_image = Image.fromarray(heatmap).convert("RGB")
 
-    base = image.convert("RGB").resize((cam_np.shape[1], cam_np.shape[0]))
+    # same Resize(256) + CenterCrop as build_transforms, so the heatmap is
+    # drawn over exactly the pixels the model saw (a plain resize would
+    # squash in the edges that CenterCrop cut off and misplace the hot spots)
+    base = image.convert("RGB")
+    base = transforms.CenterCrop(cam_np.shape)(transforms.Resize(256)(base))
     return Image.blend(base, heatmap_image, alpha=alpha)

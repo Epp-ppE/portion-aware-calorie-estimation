@@ -24,15 +24,15 @@ def predict_dish_level(model, loader, normalizer, device):
         for images, _, dish_ids in loader:
             images = images.to(device)
             preds_norm = model(images)
-            preds = normalizer.denormalize(preds_norm).cpu()
+            preds = normalizer.denormalize(preds_norm).cpu() # converts the outputs back to real units (denormalize)
             for pred, dish_id in zip(preds, dish_ids):
                 sums[dish_id] += pred
                 counts[dish_id] += 1
 
-    return {dish_id: sums[dish_id] / counts[dish_id] for dish_id in sums}
+    return {dish_id: sums[dish_id] / counts[dish_id] for dish_id in sums} # avg them per dish and return dish_id -> [cal, potein, fat, carb]
 
 
-def true_dish_targets(dish_ids, metadata):
+def true_dish_targets(dish_ids, metadata): #get the true labels for each dish_id in the test set
     """dish_id -> true label tensor of shape (4,), same order as predict_dish_level."""
     return {
         dish_id: torch.tensor([metadata[dish_id][name] for name in TARGET_NAMES], dtype=torch.float32)
