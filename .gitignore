@@ -1,6 +1,23 @@
 extra/
-data/
-results/
+
+# data: ignore the large videos/frames, but keep the small files needed to
+# reproduce training/evaluation (metadata labels + the 850/150 subset split)
+data/*
+!data/metadata/
+data/metadata/*
+!data/metadata/dish_metadata_cafe1.csv
+!data/splits/
+data/splits/*
+!data/splits/subset_train_ids.txt
+!data/splits/subset_test_ids.txt
+
+# results: keep the trained checkpoint (16 MB) so evaluate.py and the demo run without retraining
+results/*
+!results/checkpoint.pt
+
+# frames zip is shared separately (too large for git)
+*.zip
+
 __pycache__/
 *.pyc
 .gradio/
