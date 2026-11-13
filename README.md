@@ -17,7 +17,7 @@ Included in this repo:
 - `results/checkpoint.pt` — the trained model (16 MB), so evaluation and the demo run without retraining
 
 **Not included (too large for git):** the extracted frames (877 dishes, 13,251 images, ~950 MB).
-Download `nutrition5k_frames_subset.zip` here: **[LINK]**, and unzip it into the project root:
+Download `nutrition5k_frames_subset.zip` here: **[[LINK]](https://drive.google.com/drive/folders/1h3rn0P0hyLZ0htkvrF4llVmBblxp-mJB?usp=drive_link)**, and unzip it into the project root:
 
 ```
 unzip nutrition5k_frames_subset.zip   # creates data/videos/<dish_id>/frames_sampled5/*.jpeg
